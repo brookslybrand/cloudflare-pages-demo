@@ -10,7 +10,7 @@ export const headers: HeadersFunction = () => {
 export default function Index() {
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
-      <h1>Welcome to Remix</h1>
+      <h1>Welcome to Remix, yo</h1>
       <Link to="/test">Go to test</Link>
     </div>
   );
