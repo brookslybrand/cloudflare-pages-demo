@@ -5,7 +5,7 @@ import randomWords from "random-words";
 
 export const headers: HeadersFunction = () => {
   return {
-    "Cache-Control": "public, max-age=30, s-maxage=600",
+    "Cache-Control": "public, s-maxage=30",
   };
 };
 
@@ -20,7 +20,7 @@ export async function loader() {
       headers: {
         // max-age controls the browser cache
         // s-maxage controls a CDN cache
-        "Cache-Control": "public, max-age=30, s-maxage=86400",
+        "Cache-Control": "public, s-maxage=30",
       },
     }
   );
