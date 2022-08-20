@@ -5,7 +5,7 @@ import randomWords from "random-words";
 
 export const headers: HeadersFunction = () => {
   return {
-    "Cache-Control": "private, max-age=30, s-maxage=600",
+    "Cache-Control": "public, max-age=30, s-maxage=600",
   };
 };
 
