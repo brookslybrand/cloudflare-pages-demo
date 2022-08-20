@@ -1,12 +1,13 @@
+import type { HeadersFunction } from "@remix-run/cloudflare";
 import { json } from "@remix-run/cloudflare";
 import { Link, useLoaderData } from "@remix-run/react";
 import randomWords from "random-words";
 
-// export const headers: HeadersFunction = () => {
-//   return {
-//     "Cache-Control": "private, max-age=10, s-maxage=600",
-//   };
-// };
+export const headers: HeadersFunction = () => {
+  return {
+    "Cache-Control": "private, max-age=30, s-maxage=600",
+  };
+};
 
 export async function loader() {
   await new Promise((res) => setTimeout(res, 2000));
