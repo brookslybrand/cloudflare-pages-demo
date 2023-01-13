@@ -2,3 +2,4 @@
 binding = "DB" # i.e. available in your Worker on env.DB
 database_name = "demo_db"
 database_id = "14550f62-6ff7-4ebe-a948-dd88cb8222a3"
+migrations_dir = "./prisma/migrations/20230113141837_initial"
