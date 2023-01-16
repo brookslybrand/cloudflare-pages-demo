@@ -1,6 +1,12 @@
 import { join, dirname, basename } from "path";
-import { readdirSync, existsSync, mkdirSync } from "fs";
-import { copyFile } from "fs/promises";
+import {
+  readdirSync,
+  existsSync,
+  mkdirSync,
+  createReadStream,
+  createWriteStream,
+} from "fs";
+import { createInterface } from "readline";
 
 const prismaMigrationsPath = join(__dirname, "../", "prisma/migrations");
 const d1MigrationsPath = join(__dirname, "../", "migrations");
@@ -24,14 +30,34 @@ copyMigrations()
     throw new Error("Migration copy failed");
   });
 
-function copyMigrationFile(sourceFilePath: string) {
+const pragmaRegExp = /^pragma/i;
+const noPragmaReason =
+  "D1 currently doesn't allow the use of most PRAGMA statements: https://developers.cloudflare.com/d1/platform/client-api/#pragma-statements";
+
+/**
+ * Copy the file line by line, commenting out all PRAGMA statements
+ */
+async function copyMigrationFile(sourceFilePath: string) {
   const prismaDirectoryName = basename(dirname(sourceFilePath));
   const destinationFilePath = join(
     d1MigrationsPath,
     `${prismaDirectoryName}.sql`
   );
 
-  return copyFile(sourceFilePath, destinationFilePath);
+  const sourceStream = createReadStream(sourceFilePath);
+  const destinationStream = createWriteStream(destinationFilePath);
+
+  const rl = createInterface({ input: sourceStream, crlfDelay: Infinity });
+
+  for await (let line of rl) {
+    if (pragmaRegExp.test(line)) {
+      line = `-- ${line} /* ${noPragmaReason} */`;
+    }
+    destinationStream.write(line + "\n");
+  }
+
+  sourceStream.close();
+  destinationStream.close();
 }
 
 async function copyMigrationFilesInDirectory(directoryPath: string) {
