@@ -1,22 +1,50 @@
-// @ts-nocheck TODO: add validation
-
 import { json } from "@remix-run/cloudflare";
 import type { LoaderArgs } from "@remix-run/cloudflare";
 import { useLoaderData } from "@remix-run/react";
+import invariant from "tiny-invariant";
+import { z } from "zod";
+
+const Posts = z.array(
+  z.object({
+    id: z.number().int(),
+    title: z.string().nullable(),
+    published: z.coerce.boolean(),
+    authorId: z.number().int(),
+  })
+);
+
+function getDB(context: LoaderArgs["context"]) {
+  const db = context.DB;
+
+  invariant(
+    typeof db === "object" && db !== null && "prepare" in db,
+    "context.DB did not return a D1Database"
+  );
+
+  return db as D1Database;
+}
 
 export async function loader({ context }: LoaderArgs) {
-  const db = context.DB as D1Database;
+  const db = getDB(context);
 
   const { results } = await db
-    .prepare("SELECT * FROM Customers WHERE CompanyName = ?")
-    .bind("Bs Beverages")
+    .prepare(
+      `
+      SELECT * from Post
+      INNER JOIN User on User.id = Post.authorId
+      Where User.name = ?
+    `
+    )
+    .bind("Brooks")
     .all();
 
-  return json({ results });
+  const posts = Posts.parse(results);
+
+  return json({ posts });
 }
 
 export default function Index() {
-  const { results } = useLoaderData<typeof loader>();
+  const { posts } = useLoaderData<typeof loader>();
 
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.4" }}>
@@ -33,17 +61,17 @@ export default function Index() {
       <table>
         <thead>
           <tr>
-            {Object.keys(results[0]).map((key) => (
+            {Object.keys(posts[0]).map((key) => (
               <th key={key}>{key}</th>
             ))}
           </tr>
         </thead>
 
         <tbody>
-          {results?.map((result) => (
-            <tr key={result.CustomerID}>
-              {Object.values(result).map((value) => (
-                <td key={value}>{value}</td>
+          {posts?.map((post) => (
+            <tr key={post.id}>
+              {Object.entries(post).map(([key, value]) => (
+                <td key={key}>{String(value)}</td>
               ))}
             </tr>
           ))}

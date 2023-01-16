@@ -10,7 +10,10 @@
     "typecheck": "tsc -b",
     "wrangler": "wrangler pages dev ./public --d1=DB",
     "migrate": "prisma migrate dev --name",
-    "copy-migrations": "ts-node scripts/copy-migrations"
+    "migrations:copy": "ts-node scripts/copy-migrations",
+    "migrations:list": "wrangler d1 migrations list demo_db",
+    "migrations:apply": "wrangler d1 migrations apply demo_db",
+    "prisma:studio": "prisma studio .wrangler/state/d1/DB.sqlite3"
   },
   "dependencies": {
     "@remix-run/cloudflare": "^1.9.0",
@@ -18,7 +21,9 @@
     "@remix-run/react": "^1.9.0",
     "cross-env": "^7.0.3",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "tiny-invariant": "^1.3.1",
+    "zod": "^3.20.2"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^3.18.0",
